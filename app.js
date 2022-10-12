@@ -1,18 +1,39 @@
 // Дэлгэцтэй ажиллах контроллер
-var uiController = function () {
-  input = {
-    type: document.querySelector(".add__type").value,
-    description: document.querySelector(".add__description").value,
-    value: document.querySelector(".add__value").value,
+var uiController = (function () {
+  return {
+    getInput: function () {
+      return {
+        type: document.querySelector(".add__type").value,
+        description: document.querySelector(".add__description").value,
+        value: document.querySelector(".add__value").value,
+      };
+    },
+    addListItem: function (item, type) {
+      console.log("amjilttai handlaa");
+
+      var html, list;
+      if (type === "inc") {
+        list = ".income__list";
+        html =
+          '<div class="item clearfix" id="income-%id%"><div class="item__description">$description$</div><div class="right clearfix"><div class="item__value">$value$</div><div class="item__delete">            <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+      } else {
+        list = ".expenses__list";
+        html =
+          '<div class="item clearfix" id="expense-%id%"><div class="item__description">$description$</div><div class="right clearfix"><div class="item__value">$value$</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+      }
+
+      html = html.replace("%id%", item.id);
+      html = html.replace("$description$", item.description);
+      html = html.replace("$value$", item.value);
+
+      document.querySelector(list).insertAdjacentHTML("beforeend", html);
+    },
   };
-  return input;
-};
+})();
 
 // санхүүтэй ажиллах контроллер
 
 var financeController = (function () {
-  input = uiController();
-
   var Income = function (id, description, value) {
     this.id = id;
     this.description = description;
@@ -52,6 +73,7 @@ var financeController = (function () {
       }
 
       data.items[type].push(item);
+      return item;
     },
 
     seeData: function () {
@@ -64,14 +86,15 @@ var financeController = (function () {
 
 var ctrlAddItem = function () {
   console.log("Дэлгэцнээс өгөгдөл авах хэсэг");
-  var input = uiController();
+  var input = uiController.getInput();
   console.log(input);
-  financeController.addItem(input.type, input.description, input.value);
+  item = financeController.addItem(input.type, input.description, input.value);
+  console.log(item);
+  uiController.addListItem(item, input.type);
 };
 
 document.querySelector(".add__btn").addEventListener("click", function () {
   ctrlAddItem();
-  console.log(input.value);
 });
 
 document.addEventListener("keypress", function (event) {
