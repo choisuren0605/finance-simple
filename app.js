@@ -5,7 +5,7 @@ var uiController = (function () {
       return {
         type: document.querySelector(".add__type").value,
         description: document.querySelector(".add__description").value,
-        value: document.querySelector(".add__value").value,
+        value: parseInt(document.querySelector(".add__value").value),
       };
     },
     addListItem: function (item, type) {
@@ -28,6 +28,29 @@ var uiController = (function () {
 
       document.querySelector(list).insertAdjacentHTML("beforeend", html);
     },
+
+    clearFields: function () {
+      var fields = document.querySelectorAll(
+        ".add__description" + ", " + ".add__value"
+      );
+      var fieldsArr = Array.prototype.slice.call(fields);
+      fieldsArr.forEach((element) => {
+        element.value = "";
+      });
+      fieldsArr[0].focus();
+    },
+
+    budgetDisplay: function (budget) {
+      console.log(budget.totalInc);
+
+      document.querySelector(".budget__value").textContent = budget.budget;
+      document.querySelector(".budget__income--value").textContent =
+        budget.totalInc;
+      document.querySelector(".budget__expenses--value").textContent =
+        budget.totalExp;
+      document.querySelector(".budget__expenses--percentage").textContent =
+        budget.percent;
+    },
   };
 })();
 
@@ -46,6 +69,14 @@ var financeController = (function () {
     this.value = value;
   };
 
+  var calculateTotal = function (type) {
+    var sum = 0;
+    data.items[type].forEach(function (el) {
+      sum = sum + el.value;
+    });
+    data.totals[type] = sum;
+  };
+
   var data = {
     items: {
       inc: [],
@@ -55,6 +86,8 @@ var financeController = (function () {
       inc: 0,
       exp: 0,
     },
+    budget: 0,
+    percent: 0,
   };
 
   return {
@@ -79,6 +112,20 @@ var financeController = (function () {
     seeData: function () {
       return data;
     },
+    calculateBudget: function () {
+      calculateTotal("inc");
+      calculateTotal("exp");
+      data.budget = data.totals.inc - data.totals.exp;
+      data.percent = Math.round((data.totals.exp / data.totals.inc) * 100);
+    },
+    budgetGet: function () {
+      return {
+        budget: data.budget,
+        percent: data.percent,
+        totalInc: data.totals.inc,
+        totalExp: data.totals.exp,
+      };
+    },
   };
 })();
 
@@ -87,10 +134,20 @@ var financeController = (function () {
 var ctrlAddItem = function () {
   console.log("Дэлгэцнээс өгөгдөл авах хэсэг");
   var input = uiController.getInput();
-  console.log(input);
-  item = financeController.addItem(input.type, input.description, input.value);
-  console.log(item);
-  uiController.addListItem(item, input.type);
+  if ((input.description != "") & (input.value != "")) {
+    console.log(input);
+    item = financeController.addItem(
+      input.type,
+      input.description,
+      input.value
+    );
+    console.log(item);
+    uiController.addListItem(item, input.type);
+    uiController.clearFields();
+    financeController.calculateBudget();
+    var budget = financeController.budgetGet();
+    uiController.budgetDisplay(budget);
+  }
 };
 
 document.querySelector(".add__btn").addEventListener("click", function () {
