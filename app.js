@@ -8,6 +8,7 @@ var uiController = (function () {
         value: parseInt(document.querySelector(".add__value").value),
       };
     },
+
     addListItem: function (item, type) {
       console.log("amjilttai handlaa");
 
@@ -15,11 +16,11 @@ var uiController = (function () {
       if (type === "inc") {
         list = ".income__list";
         html =
-          '<div class="item clearfix" id="income-%id%"><div class="item__description">$description$</div><div class="right clearfix"><div class="item__value">$value$</div><div class="item__delete">            <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+          '<div class="item clearfix" id="inc-%id%"><div class="item__description">$description$</div><div class="right clearfix"><div class="item__value">$value$</div><div class="item__delete">            <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       } else {
         list = ".expenses__list";
         html =
-          '<div class="item clearfix" id="expense-%id%"><div class="item__description">$description$</div><div class="right clearfix"><div class="item__value">$value$</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+          '<div class="item clearfix" id="exp-%id%"><div class="item__description">$description$</div><div class="right clearfix"><div class="item__value">$value$</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       }
 
       html = html.replace("%id%", item.id);
@@ -28,7 +29,10 @@ var uiController = (function () {
 
       document.querySelector(list).insertAdjacentHTML("beforeend", html);
     },
-
+    deleteListItem: function (id) {
+      var el = document.getElementById(id);
+      el.parentNode.removeChild(el);
+    },
     clearFields: function () {
       var fields = document.querySelectorAll(
         ".add__description" + ", " + ".add__value"
@@ -167,4 +171,16 @@ document.addEventListener("keypress", function (event) {
   if (event.code == "Enter") {
     ctrlAddItem();
   }
+
+  document
+    .querySelector(".container")
+    .addEventListener("click", function (event) {
+      var id = event.target.parentNode.parentNode.parentNode.parentNode.id;
+      if (id) {
+        var type = id.split("-")[0];
+        var itemId = parseInt(id.split("-")[1]);
+        financeController.deleteItem(type, itemId);
+        uiController.deleteListItem(id);
+      }
+    });
 });
